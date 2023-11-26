@@ -1,0 +1,65 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint:js": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore .",
+    "lint:prettier": "prettier --check .",
+    "lint": "yarn lint:js && yarn lint:prettier",
+    "lintfix": "prettier --write --list-different . ; yarn lint:js --fix"
+  },
+  "eslintConfig": {
+    "root": true,
+    "parser": "vue-eslint-parser",
+    "parserOptions": {
+      "sourceType": "module",
+      "parser": "@typescript-eslint/parser"
+    },
+    "extends": [
+      "@nuxtjs/eslint-config-typescript",
+      "airbnb",
+      "prettier"
+    ],
+    "settings": {
+      "react": {
+        "version": "99.9999"
+      }
+    },
+    "rules": {
+      "no-console": "off"
+    }
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "arrowParens": "always"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@nuxt/eslint-config": "^0.2.0",
+    "@nuxtjs/eslint-config-typescript": "^12.1.0",
+    "@nuxtjs/eslint-module": "^4.1.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.54.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.0.0",
+    "postcss": "^8.4.31",
+    "prettier": "^3.1.0",
+    "tailwindcss": "^3.3.5",
+    "typescript": "5.2.2",
+    "vue-router": "^4.2.5"
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "daisyui": "^4.4.7",
+    "nuxt": "^3.8.2",
+    "vue": "^3.3.9",
+    "@nuxt/content": "^2.9.0"
+  }
+}
