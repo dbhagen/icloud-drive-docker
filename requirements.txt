@@ -1,5 +1,8 @@
+# icloudpy 0.5.0 hard-pins requests==2.28.1 (plus old keyring/tzlocal/certifi/future
+# transitively); newer requests requires an icloudpy upgrade whose changed
+# icloudpy.base session API also needs test-mock updates. See maintenance PR notes.
 icloudpy==0.5.0
-ruamel.yaml==0.16.12
+ruamel.yaml==0.18.17
 python-magic==0.4.27
-requests~=2.28.1
-pathspec~=0.11.0
+requests==2.28.1
+pathspec~=0.12.1

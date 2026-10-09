@@ -1,5 +1,5 @@
-FROM python:3.9-alpine AS build
-RUN apk update && apk add git gcc musl-dev python3-dev libffi-dev openssl-dev cargo
+FROM python:3.13-alpine AS build
+RUN apk add --no-cache git gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 WORKDIR /app
 COPY requirements.txt .
 RUN python -m venv venv
@@ -7,16 +7,21 @@ ENV PATH="/app/venv/bin/:$PATH"
 RUN pip install -U pip
 RUN pip install -r requirements.txt
 RUN pip install debugpy
-FROM python:3.9-alpine
+FROM python:3.13-alpine
+# Non-root runtime user; /home/app is needed by keyring's file backend
+RUN addgroup -S app && adduser -S -u 1000 -G app app \
+    && mkdir -p /app /home/app \
+    && chown app:app /app /home/app
 WORKDIR /app
-COPY --from=build /app/venv /app/venv
+COPY --from=build --chown=app:app /app/venv /app/venv
 # Libmagic is required at runtime by python-magic
-RUN apk update && apk add libmagic
+RUN apk add --no-cache libmagic
 ENV PATH="/app/venv/bin/:$PATH"
 ENV PYTHONPATH /app
 # Map local folder to /app instead
 #COPY . /app/
 
 EXPOSE 5678
-# Run below command 
+USER app
+# Run below command
 #CMD ["python", "-m", "debugpy","--listen", "0.0.0.0:5678", "--wait-for-client", "./src/main.py"]

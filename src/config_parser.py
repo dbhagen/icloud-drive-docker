@@ -234,9 +234,8 @@ def get_drive_remove_obsolete(config):
         )
     else:
         drive_remove_obsolete = get_config_value(config=config, config_path=config_path)
-        LOGGER.debug(
-            f"{'R' if drive_remove_obsolete else 'Not R'}emoving obsolete files and folders ..."
-        )
+        removal_state = "R" if drive_remove_obsolete else "Not R"
+        LOGGER.debug(f"{removal_state}emoving obsolete files and folders ...")
     return drive_remove_obsolete
 
 
@@ -272,9 +271,8 @@ def get_photos_remove_obsolete(config):
         photos_remove_obsolete = get_config_value(
             config=config, config_path=config_path
         )
-        LOGGER.debug(
-            f"{'R' if photos_remove_obsolete else 'Not R'}emoving obsolete photos ..."
-        )
+        removal_state = "R" if photos_remove_obsolete else "Not R"
+        LOGGER.debug(f"{removal_state}emoving obsolete photos ...")
     return photos_remove_obsolete
 
 
@@ -337,9 +335,10 @@ def get_photos_filters(config):
         file_sizes = get_config_value(config=config, config_path=config_path)
         for file_size in file_sizes:
             if file_size not in valid_file_sizes:
+                valid_sizes = ",".join(valid_file_sizes)
                 LOGGER.warning(
                     f"Skipping the invalid file size {file_size}, "
-                    + f"valid file sizes are {','.join(valid_file_sizes)}."
+                    + f"valid file sizes are {valid_sizes}."
                 )
                 file_sizes.remove(file_size)
                 if len(file_sizes) == 0:

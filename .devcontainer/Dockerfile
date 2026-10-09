@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/vscode/devcontainers/python:0-3.10
+FROM mcr.microsoft.com/vscode/devcontainers/python:1-3.13
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
