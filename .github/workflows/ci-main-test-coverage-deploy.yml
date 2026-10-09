@@ -178,6 +178,10 @@ jobs:
           publish_dir: badges
           destination_dir: badges
   deploy:
+    # Fork-safety: this job pushes to the upstream mandarons/icloud-drive Docker Hub
+    # registry namespace. Skip on forks — forks have no Docker Hub credentials, and a
+    # personal fork must never publish to the upstream's namespace.
+    if: github.repository == 'mandarons/icloud-drive'
     needs: test
     runs-on: ubuntu-latest
     steps:
