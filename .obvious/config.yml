@@ -1,7 +1,50 @@
-defaultBranch: main
-prMergeMethod: squash
-qaAutomationPaths:
-  - .github/workflows/ci-pr-test.yml
-  - .github/workflows/ci-main-test-coverage-deploy.yml
-qaGuidePaths:
-  - .obvious/QA.md
+# Repository workflow policy for Obvious Autobuild agents.
+# Schema reference: https://help.obvious.ai/autobuild/config-yml-reference
+branches:
+  defaultBase: main
+pr:
+  merge:
+    method: squash
+reviews:
+  automated:
+    enabled: true
+  botFeedback:
+    releaseBranchMaxRounds: 5
+  routing:
+    rules:
+      - name: Python sync engine
+        match:
+          - src/**
+        mode: single
+      - name: Behavior tests
+        match:
+          - tests/**
+        mode: single
+      - name: CI workflows and containers
+        match:
+          - .github/workflows/**
+          - Dockerfile
+          - Dockerfile.*
+          - run-ci.sh
+        mode: single
+      - name: Autobuild guidance and policy
+        match:
+          - .obvious/**
+        mode: single
+      - name: Documentation
+        match:
+          - docs/**
+          - "*.md"
+        mode: none
+      - name: Catch-all
+        match:
+          - "**"
+        mode: single
+qa:
+  guidePaths:
+    - .obvious/QA.md
+  automationPaths:
+    - .github/workflows/ci-pr-test.yml
+    - .github/workflows/ci-main-test-coverage-deploy.yml
+triageProjects:
+  reviewProjectId: prj_XieqcOn0
