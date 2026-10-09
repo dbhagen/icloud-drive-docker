@@ -1,0 +1,7 @@
+defaultBranch: main
+prMergeMethod: squash
+qaAutomationPaths:
+  - .github/workflows/ci-pr-test.yml
+  - .github/workflows/ci-main-test-coverage-deploy.yml
+qaGuidePaths:
+  - .obvious/QA.md
