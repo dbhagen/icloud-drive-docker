@@ -1,22 +1,29 @@
 app:
   logger:
-    # level - debug, info (default), warning or error
+    # Log level - debug, info (default), warning or error
+    # (read from config in src/__init__.py:51-55; default "info" src/__init__.py:19)
     level: "info"
-    # log filename icloud.log (default)
+    # Log filename (default: icloud.log)
+    # (read in src/__init__.py:56-61; default src/__init__.py:20; used by the file handler src/__init__.py:116-118)
     filename: "icloud.log"
   credentials:
-    # iCloud drive username
+    # iCloud drive username (required; missing/empty username is logged as an error)
+    # (src/config_parser.py:40)
     username: "please@replace.me"
-    # Retry login interval - default is 10 minutes
+    # Seconds between login retries when 2FA is required or the password is missing
+    # (default: 600 - 10 minutes; src/config_parser.py:54-66, src/__init__.py:14)
     retry_login_interval: 600
-  # Drive destination
+  # Root destination - every synced byte (drive, photos) is written below this path,
+  # not only drive (default: ./icloud; src/config_parser.py:109-123, src/__init__.py:11)
   root: "icloud"
   smtp:
   # If you want to receive email notifications about expired/missing 2FA credentials then uncomment
+  # (all keys below are read in src/config_parser.py:126-204; used by src/notify.py)
   # email: "sender@test.com"
   # Uncomment this if your SMTP username is different than your sender address (for services like AWS SES)
   # username: ""
   # default to is same as email above
+  # (get_smtp_to_email falls back to email; src/config_parser.py:144-153)
   # to: "receiver@test.com"
   # password:
   # host: "smtp.test.com"
@@ -24,42 +31,78 @@ app:
   # If your email provider doesn't handle TLS
   # no_tls: true
   # valid values are - global (default - uses .com) or china (uses .com.cn)
+  # (src/config_parser.py:366-383; endpoints selected in src/sync.py:36-37)
   region: global
 drive:
+  # Destination folder below app.root for synced iCloud Drive content (default: drive)
+  # (src/config_parser.py:207-223, src/__init__.py:12)
   destination: "drive"
+  # Remove local drive files/folders that were not part of the last sync cycle - e.g. deleted
+  # from iCloud or excluded by filters (default: false; src/config_parser.py:226-240,
+  # deletion walk src/sync_drive.py:230-245). Only the top-level of the destination is affected.
   remove_obsolete: false
+  # Seconds between drive sync cycles (default: 1800 - 30 minutes; src/config_parser.py:69-81,
+  # src/__init__.py:15). A negative value makes the app exit after one pass (src/sync.py:146-153).
   sync_interval: 300
+  # Optional exclude-list of gitignore-style (gitwildmatch) patterns applied to drive files
+  # and folders - uncomment `ignore` as a sibling of filters (read at src/sync_drive.py:329-331;
+  # matched at src/sync_drive.py:24-25, 39-40).
+  # ignore:
+  #   - "*.tmp"
+  #   - "Private/**"
   filters:
-    # File filters to be included in syncing iCloud drive content
+    # Include-list: only these folders - relative to the drive destination - and their subtrees
+    # sync. A folder is kept if it is listed, inside a listed folder, or a parent of one
+    # (folders key consumed at src/sync_drive.py:267-268, 293-294; matching in
+    # wanted_folder/wanted_parent_folder src/sync_drive.py:37-75).
     folders:
       - "folder1"
       - "folder2"
       - "folder3"
+    # File extensions to be included - each is matched as a case-insensitive suffix of the
+    # file path (src/sync_drive.py:303-304, matching in wanted_file src/sync_drive.py:20-34).
+    # Omit to download all file types.
     file_extensions:
-      # File extensions to be included
       - "pdf"
       - "png"
       - "jpg"
       - "jpeg"
 photos:
+  # Destination folder below app.root for synced photos (default: photos)
+  # (src/config_parser.py:242-258, src/__init__.py:13)
   destination: "photos"
+  # Remove local photos that were not part of the last sync cycle - e.g. deleted from the
+  # selected albums (default: false; src/config_parser.py:261-277, removal src/sync_photos.py:144-156).
   remove_obsolete: false
+  # Seconds between photo sync cycles (default: 1800 - 30 minutes; src/config_parser.py:84-96).
   sync_interval: 500
-  all_albums: false # Optional, default false. If true preserve album structure. If same photo is in multiple albums creates duplicates on filesystem
+  # Optional, default false. If true every album syncs into its own folder - a photo in
+  # multiple albums downloads once per album (src/sync_photos.py:170-181). If false, photos
+  # land in the "all" folder unless an albums filter is set (src/sync_photos.py:182-200).
+  all_albums: false
   # folder_format: "%Y/%m" # optional, if set put photos in subfolders according to format. Format cheatsheet - https://strftime.org
   filters:
     # List of libraries to download. If omitted (default), photos from all libraries (own and shared) are downloaded. If included, photos only
     # from the listed libraries are downloaded.
+    # (src/config_parser.py:301)
     # libraries:
     #   - PrimarySync # Name of the own library
 
     # if all_albums is false - albums list is used as filter-in, if all_albums is true - albums list is used as filter-out
     # if albums list is empty and all_albums is false download all photos to "all" folder. if empty and all_albums is true download all folders
+    # (filter-out src/sync_photos.py:170-173; filter-in src/sync_photos.py:182-191; parsed src/config_parser.py:316)
     albums:
       - "album 1"
       - "album2"
+    # Optional include-list of photo file extensions - matched case-insensitively against the
+    # photo filename; omit to download all extensions (src/config_parser.py:349,
+    # matching photo_wanted src/sync_photos.py:15-23).
+    # extensions:
+    #   - "jpg"
+    #   - "mov"
     file_sizes:
-      # valid values are original, medium and/or thumb
+      # valid values are original, medium and/or thumb - unrecognized values are skipped with a
+      # warning and original is the fallback when none remain (src/config_parser.py:287, 329-345)
       - "original"
       # - "medium"
       # - "thumb"

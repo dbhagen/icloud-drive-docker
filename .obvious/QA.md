@@ -1,20 +1,20 @@
 # QA Guide — icloud-drive-docker
 
-What each quality gate checks, how to reproduce it locally, and what the fixtures prove. Commands verified against base `bb1e027` (see `.obvious/LOCAL-DEV.md` for the verified environment and the Python 3.13 pylint caveat).
+What each quality gate checks, how to reproduce it locally, and what the fixtures prove. Commands verified against base `2061137d` (see `.obvious/LOCAL-DEV.md` for the verified environment).
 
 ## Gates
 
 | Gate | Where it runs | What it checks | Reproduce |
 |---|---|---|---|
-| PR CI (`ci-pr-test.yml`) | PRs to `main`, path-filtered (`src/**`, `tests/**`, `Dockerfile`, `pylintrc`, `pytest.ini`, `requirements*`, `run-ci.sh` — lines 6-14); manual dispatch possible | `pylint src/ tests/ && pytest` on Python 3.10 (line 63) | `./run-ci.sh` (or the two commands separately) |
-| Main CI (`ci-main-test-coverage-deploy.yml`) | Push to `main`, same path filter (6-17) | `pytest` only (61-63) incl. the 100% coverage gate; publishes Allure/coverage reports; builds and pushes `mandarons/icloud-drive:main` (186-225, upstream Docker Hub secrets required) | `pytest` |
+| PR CI (`ci-pr-test.yml`) | PRs to `main`, path-filtered (`src/**`, `tests/**`, `Dockerfile`, `pylintrc`, `pytest.ini`, `requirements*`, `run-ci.sh` — lines 6-14); manual dispatch possible (15) | `pylint src/ tests/ && pytest` on Python 3.13 (line 63) | `./run-ci.sh` (or the two commands separately) |
+| Main CI (`ci-main-test-coverage-deploy.yml`) | Push to `main`, same path filter (9-17) | `pytest` only (63) incl. the 100% coverage gate; publishes Allure/coverage reports; builds and pushes `mandarons/icloud-drive:main` (205-215, upstream Docker Hub secrets required) | `pytest` |
 | Coverage floor | Every pytest run via `pytest.ini:5` | `--cov-fail-under=100` measured over `src/*` only (`Coveragerc`) — tests are excluded from measurement | `pytest` |
-| pylint | PR CI only — never on main pushes | Full `src/` + `tests/` against Google-style `pylintrc` | `pylint src/ tests/` (Python 3.10) |
+| pylint | PR CI only — never on main pushes | Full `src/` + `tests/` against Google-style `pylintrc` | `pylint src/ tests/` (Python 3.13) |
 | pre-commit (local) | Developer machines | ruff, black, isort, flake8, bandit (config `tests/bandit.yaml`), yamllint (config `.yamllint`), prettier, codespell, local pylint via `run-in-env.sh`, `no-commit-to-branch` guard on `main` | `pre-commit run --all-files` |
 
 **Path-filter caveat:** doc-only PRs (README, docs/, .obvious/) trigger **no CI** — the filters only watch source/test/tooling paths. To force the PR workflow, run it via the `workflow_dispatch` trigger on the PR branch (`ci-pr-test.yml:15`).
 
-**Verified baseline (this sandbox, Python 3.13.14):** `pytest` → **179 passed, coverage 100.00%**, exit 0. `pylint src/ tests/` → exit 1 on 3.13 (wrapt 1.12.1 `inspect.formatargspec` ImportError); green on CI's 3.10. Single test: `pytest tests/test_config_parser.py -k get_username --cov-fail-under=0` → 3 passed, exit 0.
+**Verified baseline (this sandbox, Python 3.13.14):** `pytest` → **193 passed, coverage 100.00%**, exit 0. `pylint src/ tests/` → **exit 0, rated 10.00/10** (pylint 3.3.9; the historical wrapt/formatargspec 3.13 blocker is gone since PR #2). Single test: `pytest tests/test_config_parser.py -k get_username --cov-fail-under=0` → 3 passed, exit 0.
 
 ## Synthetic fixtures (tests/data/)
 
